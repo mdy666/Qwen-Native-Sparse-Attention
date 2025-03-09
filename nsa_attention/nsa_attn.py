@@ -48,11 +48,11 @@ class NsaAttention(torch.nn.Module):
                                                torch.nn.Sigmoid())
 
     
-    def forward(self, q, k, v, inplac=True):
+    def forward(self, q, k, v, inplace=True):
         # inplace用于测试，bwd_ind会被原地修改，改为不原地修改
         cmp_o, lse, cmp_k = self.compress_attn(q, k, v) # 17ms
         _, fwd_ind, bwd_ind = self.select_for_fwd_bwd(q, cmp_k, lse) # 14ms
-        select_o = self.select_attn(q, k, v, fwd_ind=fwd_ind, bwd_ind=bwd_ind, inplace=inplac) # 16ms
+        select_o = self.select_attn(q, k, v, fwd_ind=fwd_ind, bwd_ind=bwd_ind, inplace=inplace) # 16ms
         window_o = self.window_attn(q, k, v) # 2.7ms
         if isinstance(window_o, Tuple):
             window_o = window_o[0]

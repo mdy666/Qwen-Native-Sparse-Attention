@@ -446,7 +446,7 @@ class _attention(torch.autograd.Function):
         if (D1 + D2) == 192:
             kwargs = {"BLOCK_SIZE_N": 32, "BLOCK_SIZE_M": 128, "num_warps": 8, "num_stages": 1}
         else:
-            kwargs = {"BLOCK_SIZE_N": 128, "BLOCK_SIZE_M": 64, "num_warps": 8, "num_stages": 1}
+            kwargs = {"BLOCK_SIZE_N": 128, "BLOCK_SIZE_M": 64, "num_warps": 8, "num_stages": 2}
         grid = lambda meta: (B, KH, triton.cdiv(M, meta["BLOCK_SIZE_M"]))
         _dkdv_kernel[grid](dk, dv, do, 
                           q, k, v,
