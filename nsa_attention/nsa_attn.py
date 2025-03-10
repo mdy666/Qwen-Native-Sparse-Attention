@@ -14,7 +14,25 @@ from .compress_attn_v1 import CompressAttn
 from .select_attn_v3 import select_attn, select_for_fwd_bwd
 
 class NsaAttention(torch.nn.Module):
-    def __init__(self, qk_head_dim, v_head_dim, kernel_size, stride, select_size, top_n, window_size):
+    """
+    native sparse attention.
+
+    Args:
+        qk_head_dim (int): head dim of q and k head
+
+        v_head_dim (int): head dim of v head
+
+        kernel_size (int): how many kv will be compressed and become a compressed kv block, the "l" in the paper
+
+        stride (int): like conv stride, compress the next block will move how many kv, the "d" in the paper
+
+        select_size (int): select block size, the "l'" in the paper
+
+        top_n (int): q will chosses how many select blocks.
+
+        window_size (int): sliding window size for window attention
+    """
+    def __init__(self, qk_head_dim, v_head_dim, kernel_size=32, stride=16, select_size=64, top_n=16, window_size=512):
         super().__init__()
         self.qk_head_dim = qk_head_dim
         self.v_head_dim = v_head_dim
@@ -49,6 +67,17 @@ class NsaAttention(torch.nn.Module):
 
     
     def forward(self, q, k, v, inplace=True):
+        """
+        Forward pass for the NSA Attention module.
+
+        Args:
+            q (torch.Tensor): [b, seq_len, num_q_head, qk_head_dim]
+            k (torch.Tensor): [b, seq_len, num_kv_head, qk_head_dim]
+            v (torch.Tensor): [b, seq_len, num_kv_head, v_head_dim]
+            inplace (bool): in the backward the bwd_ind will be update in-place, set False for benchmark
+        Returns:
+            o (torch.Tensor): [b, seq_len, num_q_head, v_head_dim]
+        """
         # inplace用于测试，bwd_ind会被原地修改，改为不原地修改
         cmp_o, lse, cmp_k = self.compress_attn(q, k, v) # 17ms
         _, fwd_ind, bwd_ind = self.select_for_fwd_bwd(q, cmp_k, lse) # 14ms
@@ -61,4 +90,3 @@ class NsaAttention(torch.nn.Module):
                     + select_o * weight[..., 1].unsqueeze(-1) \
                     + window_o * weight[..., 2].unsqueeze(-1) # 6ms
         return combine_o
-

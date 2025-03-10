@@ -145,7 +145,16 @@ def pad_256(tensor):
 
 
 def deep_matmul(a, b, out=None):
-    # 注意，a是[m,k]，b是[n,k]，不要求连续
+    """
+    fp8 matmul, it contain quant and matmul
+
+    Args:
+        a (torch.Tensor): shape : [m, k], dtype: torch.bfloat16, don't must be contiguous
+        a (torch.Tensor): shape : [n, k], dtype: torch.bfloat16, don't must be contiguous
+    
+    Return:
+        out (torch.Tensor):  shape : [m, n], dtype: torch.bfloat16
+    """
     assert a.dim() == 2 and a.dtype == torch.bfloat16
     assert b.dim() == 2 and b.dtype == torch.bfloat16
     m, k = a.shape
@@ -295,8 +304,16 @@ def fp8_forward(self, input):
     return _DeepLinear.apply(input, self.weight, self.bias)
 
 def apply_fp8(module, pattern=['proj'], prefix=None):
-    # 要替换的pattern，默认替换所有名字带proj的Linear
-    # 可以具体些[q_proj, up_proj.....]
+    '''
+    apply fp8 for the specific Linear
+
+    Args:
+        module (torch.nn.Module): the input is the Model Like Qwen or Llama.
+        pattern (List[str]): Which Linear will be apply fp8. If the module name match one of pattern,
+                            the module will apply fp8. It can like "[proj]" or [q_proj, up_proj, gate_proj].
+                            Warning: Don't use it for lm_head
+        prefix: set to None at the begining, you can  print the full_name to verfiy the accurate.    
+    '''
     if module is None:
         return
     for name, child in module.named_children():
