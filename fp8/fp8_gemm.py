@@ -9,9 +9,9 @@ import types
 
 # @triton.autotune(
 #         [triton.Config({'BLOCK_M': bsm}, num_stages=ns, num_warps=nw)
-#                 for bsm in [16, 32, 64]
+#                 for bsm in [16, 32]
 #                 for ns in [1, 2, 4]
-#                 for nw in [4, 8]
+#                 for nw in [1, 2, 4, 8]
 #                 ], key=['M', 'N'])
 @triton.jit
 def _per_token_cast_to_fp8_kernel(X, Y, S, 
@@ -42,7 +42,10 @@ def per_token_cast_to_fp8(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     aligin_m = triton.cdiv(M, 8) * 8
     s = torch.empty(triton.cdiv(N, BLOCK_N), aligin_m, dtype=torch.float32, device=x.device)
     grid = lambda meta: (triton.cdiv(M, meta['BLOCK_M']), K)
-    kwargs = {'BLOCK_M': 16, 'BLOCK_N': BLOCK_N, 'num_warps':4, 'num_stages':4}
+    if x.is_contiguous():
+        kwargs = {'BLOCK_M': 32, 'BLOCK_N': BLOCK_N, 'num_warps':8, 'num_stages':2}
+    else:
+        kwargs = {'BLOCK_M': 32, 'BLOCK_N': BLOCK_N, 'num_warps':1, 'num_stages':4}
     _per_token_cast_to_fp8_kernel[grid](x, y, s, 
                         *x.stride(),
                         *y.stride(),
@@ -54,8 +57,8 @@ def per_token_cast_to_fp8(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
 
 # @triton.autotune(
 #         [triton.Config({}, num_stages=ns, num_warps=nw)
-#                 for ns in [1, 2, 3, 4, 5]
-#                 for nw in [4, 8]
+#                 for ns in [1, 2, 3, 4]
+#                 for nw in [1, 2, 4, 8]
 #                 ], key=['M', 'N']
 # )
 @triton.jit
@@ -78,6 +81,34 @@ def _per_block_cast_to_fp8_kernel(X, Y, S,
     y = x / scale
     tl.store(Y + off_m[:, None] * stride_ym + off_n[None, :] * stride_yn, y, mask=mask)
     tl.store(S + pid_m * stride_sm + pid_n * stride_sn, scale)
+
+# @triton.autotune(
+#         [triton.Config({}, num_stages=ns, num_warps=nw)
+#                 for ns in [1, 2, 3, 4]
+#                 for nw in [1, 2, 4, 8]
+#                 ], key=['M', 'N']
+# )
+# @triton.jit
+# def _per_block_cast_to_fp8_kernel(X, Y, S, 
+#                            stride_xm, stride_xn,
+#                            stride_ym, stride_yn,
+#                            stride_sm, stride_sn,
+#                            M, N, MAX,
+#                            BLOCK_M: tl.constexpr=128, BLOCK_N: tl.constexpr=128,
+#                             ):
+#     pid_m = tl.program_id(axis=0)
+#     pid_n = tl.program_id(axis=1)
+#     start_m = pid_m * BLOCK_M
+#     start_n = pid_n * BLOCK_M
+
+#     x_ptrs = tl.make_block_ptr(X, (M, N), (stride_xm, stride_xn), (start_m, start_n), (BLOCK_M, BLOCK_N), (1, 0))
+#     y_ptrs = tl.make_block_ptr(Y, (M, N), (stride_ym, stride_yn), (start_m, start_n), (BLOCK_M, BLOCK_N), (1, 0))
+#     x = tl.load(x_ptrs, boundary_check=(0, 1)).to(tl.float32)
+#     x_max = tl.clamp(tl.max(tl.abs(x)), min=0, max=1e4) + 0.000001
+#     scale = x_max / MAX
+#     y = x / scale
+#     tl.store(y_ptrs, y.to(y_ptrs.dtype.element_ty), boundary_check=(0, 1))
+#     tl.store(S + pid_m * stride_sm + pid_n * stride_sn, scale)
 
 def per_block_cast_to_fp8(x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     BLOCK_M = 128
@@ -246,12 +277,13 @@ class _DeepLinear(torch.autograd.Function):
         dinp, dweight, dbias = None, None, None
         
         dweight = deep_matmul(grad_outputs.T, inp.T)
-        if inp.requires_grad:
-            dinp = deep_matmul(grad_outputs, weight.T)
+        # if inp.requires_grad:
+        #     dinp = deep_matmul(grad_outputs, weight.T)
+        #     dinp.view(ctx.inp_shape)
         
         if bias is not None:
             dbias = grad_outputs.sum(0)
-        return dinp.view(ctx.inp_shape), dweight, dbias
+        return dinp, dweight, dbias
 
 
 class DeepLinear(torch.nn.Linear):
