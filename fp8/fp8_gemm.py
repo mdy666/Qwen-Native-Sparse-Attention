@@ -278,8 +278,7 @@ class _DeepLinear(torch.autograd.Function):
         
         dweight = deep_matmul(grad_outputs.T, inp.T)
         if inp.requires_grad:
-            dinp = deep_matmul(grad_outputs, weight.T)
-            dinp.view(ctx.inp_shape)
+            dinp = deep_matmul(grad_outputs, weight.T).view(ctx.inp_shape)
         
         if bias is not None:
             dbias = grad_outputs.sum(0)
