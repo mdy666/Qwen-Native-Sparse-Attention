@@ -57,7 +57,7 @@ def _cross_entropy_bwd_kernel(DLOSSES, DLOGITS,
         LOGITS += row_idx * row_stride
         DLOGITS += row_idx * row_stride
         LOGSUMEXP += row_idx
-        DLOSSES += row_idx  * dloss_row_stride
+        DLOSSES += row_idx * dloss_row_stride
         lse = tl.load(LOGSUMEXP)
         dloss = tl.load(DLOSSES).to(tl.float32)
         base_cols = tl.arange(0, BLOCK_SIZE)
@@ -135,7 +135,7 @@ class _FastCrossEntropyLoss(torch.autograd.Function):
             _cross_entropy_bwd_kernel[(M,)](dlosses, dlogits, 
                                             logits, labels, logsumexp,
                                             vocab_start_index, logits.stride(0),
-                                            dlosses.stride(0),
+                                            dlosses.view(-1).stride(0),
                                             M, N, ctx.inplace, 
                                             BLOCK_SIZE=BLOCK_SIZE, num_warps=32, num_stages=1
                                             )
