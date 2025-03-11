@@ -10,7 +10,7 @@ from qwen2.patch_others import trigger
 import torch
 import torch.distributed as dist
 from dataset.megatron_gpt_dataset import build_dataset
-from transformers import TrainingArguments, Trainer, AutoModelForCausalLM, AutoConfig
+from transformers import TrainingArguments, Trainer, AutoModelForCausalLM, AutoConfig, Qwen2ForCausalLM
 
 def print_rank0(*args):
     if torch.distributed.is_initialized():
@@ -69,11 +69,11 @@ if __name__ == '__main__':
     ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len)
     
     print_rank0('====================loading model=======================')
-    # config = AutoConfig.from_pretrained(args.model_config)
-    # model = Qwen2ForCausalLM(config).to(device).to(torch.bfloat16)
+    config = AutoConfig.from_pretrained(args.model_config)
+    model = Qwen2ForCausalLM(config).to(device).to(torch.bfloat16)
     # 初始化很慢，可以初始化一次，保存下来，之后用from_pretrained加载
     # model.save_pretrained('/sharedata/mdy/models/nsa-3B')
-    model = AutoModelForCausalLM.from_pretrained('/sharedata/mdy/models/nsa-3B', torch_dtype=torch.bfloat16, device_map='cuda')
+    # model = AutoModelForCausalLM.from_pretrained('/sharedata/mdy/models/nsa-3B', torch_dtype=torch.bfloat16, device_map='cuda')
     print_rank0(model)
     time.sleep(5)
 
