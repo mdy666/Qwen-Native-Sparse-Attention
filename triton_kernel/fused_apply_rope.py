@@ -4,10 +4,22 @@ import triton.language as tl
 
 
 @triton.jit
-def _fused_apply_rope_fwd(Q, K, COS, SIN,
-                          Q_EMBED, K_EMBED,
-                          B, COS_B, L, QH, KH, D:tl.constexpr, HALF_D:tl.constexpr,
-                          BLOCK_QH:tl.constexpr, BLOCK_KH:tl.constexpr, BLOCK_D:tl.constexpr,
+def _fused_apply_rope_fwd(Q, 
+                          K, 
+                          COS, 
+                          SIN,
+                          Q_EMBED, 
+                          K_EMBED,
+                          B, 
+                          COS_B, 
+                          L, 
+                          QH, 
+                          KH, 
+                          D:tl.constexpr, 
+                          HALF_D:tl.constexpr,
+                          BLOCK_QH:tl.constexpr, 
+                          BLOCK_KH:tl.constexpr, 
+                          BLOCK_D:tl.constexpr,
                           CHUNK_N:tl.constexpr=64
                           ):
     start_n = tl.cast(tl.program_id(0), tl.int64) * CHUNK_N + tl.program_id(1)
@@ -49,14 +61,27 @@ def _fused_apply_rope_fwd(Q, K, COS, SIN,
     
 
 @triton.jit
-def _fused_apply_rope_bwd(DQ_EMBED, DK_EMBED, COS, SIN,
-                          DQ, DK, 
+def _fused_apply_rope_bwd(DQ_EMBED, 
+                          DK_EMBED, 
+                          COS, 
+                          SIN,
+                          DQ, 
+                          DK, 
                           dq_stride_b, dq_stride_h, dq_stride_l, dq_stride_d,
                           dk_stride_b, dk_stride_h, dk_stride_l, dk_stride_d,
-                        B, COS_B, L, QH, KH, D: tl.constexpr, HALF_D: tl.constexpr,
-                        BLOCK_QH:tl.constexpr, BLOCK_KH:tl.constexpr, BLOCK_D:tl.constexpr,
-                        CHUNK_N:tl.constexpr=64
+                          B, 
+                          COS_B, 
+                          L, 
+                          QH, 
+                          KH, 
+                          D: tl.constexpr, 
+                          HALF_D: tl.constexpr,
+                          BLOCK_QH:tl.constexpr, 
+                          BLOCK_KH:tl.constexpr, 
+                          BLOCK_D:tl.constexpr,
+                          CHUNK_N:tl.constexpr=64
                         ):
+    
     start_n = tl.cast(tl.program_id(0), tl.int64) * CHUNK_N + tl.program_id(1)
     if start_n >= B*L:
         return
