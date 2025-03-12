@@ -1,10 +1,10 @@
 set -f
 DATA_PATH="/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_en_text_document"
 TOKENIZER="/sharedata/mdy/models/SauerkrautLM-Mixtral-8x7B-Instruct"
-MODEl_CONFIG="./qwen2/config300M.json"
-MICRO_BATCH_SIZE=16
+MODEl_CONFIG="./qwen2/config7B.json"
+MICRO_BATCH_SIZE=2
 GLOBAL_BATCH_SIZE=256
-OUTPUT_DIR="./log/0.3B/base-bf16-0.3B"
+OUTPUT_DIR="./log/7B/nsa-fp8"
 MAX_SEQ_LEN=4096
 MAX_STEPS=5000
 

@@ -29,9 +29,14 @@ bash train.sh --deepspeed --nsa --fp8 --fp8-pattern proj
 
 ## 训练损失 (Training Loss)
 
-- **问题**：配置文件写错了（QWQ），本来要训练 Qwen 3B，但模型层数改错了，变成了 1.5B。具体日志使用tensorboard查看log文件夹
+- **1.5B**：配置文件写错了（QWQ），本来要训练 Qwen 3B，但模型层数改错了，变成了 1.5B。具体日志使用tensorboard查看log文件夹
   
   ![Training Loss](./log/imgs/train_loss.png)
+
+- **0.3B**
+  
+  ![Training Loss](./log/imgs/loss-0.3B.png)
+
 
 ## NSA 前向传播 (NSA Forward)
 
