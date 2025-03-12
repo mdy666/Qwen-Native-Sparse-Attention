@@ -4,7 +4,7 @@ TOKENIZER="/sharedata/mdy/models/SauerkrautLM-Mixtral-8x7B-Instruct"
 MODEl_CONFIG="./qwen2/config300M.json"
 MICRO_BATCH_SIZE=16
 GLOBAL_BATCH_SIZE=256
-OUTPUT_DIR="./log/base-bf16-0.3B"
+OUTPUT_DIR="./log/0.3B/base-bf16-0.3B"
 MAX_SEQ_LEN=4096
 MAX_STEPS=5000
 
