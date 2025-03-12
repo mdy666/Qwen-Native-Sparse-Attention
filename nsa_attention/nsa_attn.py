@@ -12,6 +12,7 @@ except:
 
 from .compress_attn_v1 import CompressAttn
 from .select_attn_v3 import select_attn, select_for_fwd_bwd
+from .combine import fused_sigmoid_combine
 
 class NsaAttention(torch.nn.Module):
     """
@@ -62,8 +63,7 @@ class NsaAttention(torch.nn.Module):
                                    causal=True, 
                                    window_size=(self.window_size, -1) )
 
-        self.attn_weight = torch.nn.Sequential(torch.nn.Linear(qk_head_dim, 3),
-                                               torch.nn.Sigmoid())
+        self.attn_gate = torch.nn.Linear(qk_head_dim, 3)
 
     
     def forward(self, q, k, v, inplace=True):
@@ -85,8 +85,6 @@ class NsaAttention(torch.nn.Module):
         window_o = self.window_attn(q, k, v) # 2.7ms
         if isinstance(window_o, Tuple):
             window_o = window_o[0]
-        weight = self.attn_weight(q) # 1ms 
-        combine_o = cmp_o * weight[..., 0].unsqueeze(-1) \
-                    + select_o * weight[..., 1].unsqueeze(-1) \
-                    + window_o * weight[..., 2].unsqueeze(-1) # 6ms
+        weight = self.attn_gate(q) # 1ms 
+        combine_o = fused_sigmoid_combine(cmp_o, select_o, window_o, weight) # 1.2ms
         return combine_o
