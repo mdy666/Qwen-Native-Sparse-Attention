@@ -120,6 +120,7 @@ def _compute_select_probs(AP, SP, FInd, BInd,
         acc_p += p
         compress_idx += 1
         compress_start += stride
+        
     if return_p:
         acc_p = tl.where(tl.arange(0, BLOCK_SIZE_K)[None, :] == (off_n // select_size)[:, None], 9999, acc_p)
         tl.store(SP + off_n[:, None] * sp_stride_n + select_idx[None, :] * sp_stride_k, 

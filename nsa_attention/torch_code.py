@@ -35,7 +35,7 @@ def torch_blcok_compress(x, weight, pe_embedding, stride):
     # 为什么说这样压缩合理呢，block_x明显是要比x更占内存的，如果有一个求和的过程
     # 使用triton时直接输入x，就直接输出compress_x了，一步完成
     # 而不是先对block_x乘上一个Linear做变换，然后再压缩，这样更消耗显存
-    compress_x = (block_x * weight[None, None, None, :, None]).sum(-2) / kernel_size
+    compress_x = (block_x * weight[None, None, None, :, None]).mean(-2)
     return compress_x.transpose(1, 2)
 
 def compress_mask(score, batch, head, q_idx, k_idx, kernel_size, stride, value):

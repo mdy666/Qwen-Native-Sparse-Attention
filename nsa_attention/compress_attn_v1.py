@@ -51,7 +51,7 @@ def _block_compress_fwd(X, W, PE, Y,
         x = tl.load(x_ptrs, mask=mask[:, None], other=0.).to(tl.float32)
         pe_ptrs = PE + rows[:, None] * D + tl.arange(0, D2)[None, :] + D1
         pe = tl.load(pe_ptrs, mask=mask[:, None], other=0.).to(tl.float32)
-        y = tl.sum((x + pe) * w[:, None], axis=0)
+        y = tl.sum((x + pe) * w[:, None], axis=0) / kernel_size
         y_ptrs = Y + tl.arange(0, D2) + D1
         tl.store(y_ptrs, y)
 
@@ -160,7 +160,7 @@ def _block_compress_dx(DY, DX,
             dy_ptrs = DY + block_idx * dy_stride_m + cols
             dy = tl.load(dy_ptrs).to(tl.float32)
             w = tl.load(W + idx*stride + rows).to(tl.float32)
-            dx += dy[None, :] * w[:, None] / kernel_size
+            dx += dy[None, :] * w[:, None]
             if D2 > 0:
                 dy_ptrs2 = DY + block_idx * dy_stride_m + cols2
                 dy2 = tl.load(dy_ptrs2).to(tl.float32)
