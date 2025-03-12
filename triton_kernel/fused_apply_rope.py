@@ -131,11 +131,8 @@ class _FusedApplyRope(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, dq_embed, dk_embed):
-        print(dq_embed.stride(), dk_embed.shape)
         B, QH, KH, L, D, HALF_D, N, COS_B, BLOCK_QH, BLOCK_KH, BLOCK_D = ctx.infos
         cos,sin = ctx.saved_tensors
-        dq = torch.empty(B, L, QH, D, device=dq_embed.device, dtype=dq_embed.dtype)
-        dk = torch.empty(B, L, KH, D, device=dk_embed.device, dtype=dk_embed.dtype)
         dq = torch.empty_like(dq_embed)
         dk = torch.empty_like(dk_embed)
         grid = lambda meta: (triton.cdiv(N, meta['CHUNK_N']), meta['CHUNK_N'])
