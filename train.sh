@@ -4,7 +4,8 @@ TOKENIZER="/sharedata/mdy/models/SauerkrautLM-Mixtral-8x7B-Instruct"
 MODEl_CONFIG="./qwen2/config7B.json"
 MICRO_BATCH_SIZE=2
 GLOBAL_BATCH_SIZE=256
-OUTPUT_DIR="./log/7B/nsa-fp8"
+OUTPUT_DIR="/sharedata/mdy/models/base-7b-ckpt"
+TENSORBOARD="./log/7B/base-fp8"
 MAX_SEQ_LEN=4096
 MAX_STEPS=5000
 
@@ -16,6 +17,7 @@ torchrun --nproc_per_node=$N_GPUS train.py $@ \
     --micro_batch_size $MICRO_BATCH_SIZE \
     --global_batch_size $GLOBAL_BATCH_SIZE \
     --output_dir $OUTPUT_DIR \
+    --log_dir $TENSORBOARD \
     --max_seq_len $MAX_SEQ_LEN \
     --max_steps $MAX_STEPS
 

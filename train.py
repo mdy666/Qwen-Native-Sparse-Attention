@@ -28,7 +28,7 @@ def get_args():
 
     parser.add_argument('--model-config',type=str, default='./qwen2/config1.5B.json')
     parser.add_argument('--tokenizer',type=str, default='')
-    parser.add_argument('--data-path', type=str)
+    parser.add_argument('--data-path', nargs='+')
 
     parser.add_argument('--output_dir', type=str)
     parser.add_argument('--log_dir', type=str)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     print_rank0('====================loading datasets=======================') 
     # 用的Magatron中的GPTDataset，可以换成别的。注意：label已经是shift之后的了
-    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len, seed=seed, num_samples=args.max_steps * args.global_batch_size)
+    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len, seed=42, num_samples=args.max_steps * args.global_batch_size)
     
     print_rank0('====================loading model=======================')
     config = AutoConfig.from_pretrained(args.model_config)

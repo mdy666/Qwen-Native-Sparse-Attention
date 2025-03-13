@@ -121,6 +121,7 @@ def build_dataset(data_prefix, tokenizer_path, seq_len=4096, seed=42, num_sample
                                         reset_attention_mask=False, create_attention_mask=False, 
                                         reset_position_ids=False, eod_mask_loss=False)
     if len(data_prefix) == 1:
+        data_prefix = data_prefix[0]
         index_ds = indexed_dataset.IndexedDataset(data_prefix)
         indices = np.arange(0, index_ds.index.sequence_count)
         if num_samples is None:
