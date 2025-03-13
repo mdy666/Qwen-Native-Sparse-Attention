@@ -46,3 +46,33 @@ data_prefix = """/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_en_text_docume
 
 ds = build_dataset(data_prefix, tokenizer_path=tokenizer, seed=888, num_samples=1000)
 ```
+
+# BUG
+
+```python
+# Megatron-LM/megatron/core/datasets/indexed_dataset.py中的804行，改如下
+# 不然np.int32会发生数值溢出
+def add_index(self, path_prefix: str) -> None:
+    """Add an entire IndexedDataset to the dataset
+
+    Args:
+        path_prefix (str): The index (.idx) and data (.bin) prefix
+    """
+    # Concatenate index
+    index = _IndexReader(get_idx_path(path_prefix), multimodal=self.multimodal)
+    assert index.dtype == self.dtype
+
+    offset = len(self.sequence_lengths)
+    # self.sequence_lengths.extend(index.sequence_lengths)
+    # self.document_indices.extend((offset + index.document_indices)[1:])
+
+    self.sequence_lengths.extend(index.sequence_lengths.tolist())
+    self.document_indices.extend((offset + index.document_indices)[1:].tolist())
+
+    if self.multimodal:
+        self.sequence_modes.extend(index.sequence_modes)
+
+    # Concatenate data
+    with open(get_bin_path(path_prefix), "rb") as f:
+        shutil.copyfileobj(f, self.data_file)
+```
