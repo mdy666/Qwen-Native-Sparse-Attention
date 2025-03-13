@@ -31,6 +31,7 @@ def get_args():
     parser.add_argument('--data-path', type=str)
 
     parser.add_argument('--output_dir', type=str)
+    parser.add_argument('--log_dir', type=str)
     parser.add_argument('--micro_batch_size', type=int, default=4)
     parser.add_argument('--global_batch_size', type=int, default=256)
     parser.add_argument('--max_seq_len', type=int, default=1024)
@@ -66,14 +67,14 @@ if __name__ == '__main__':
 
     print_rank0('====================loading datasets=======================') 
     # 用的Magatron中的GPTDataset，可以换成别的。注意：label已经是shift之后的了
-    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len)
+    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len, seed=seed, num_samples=args.max_steps * args.global_batch_size)
     
     print_rank0('====================loading model=======================')
     config = AutoConfig.from_pretrained(args.model_config)
     model = Qwen2ForCausalLM(config).to(device).to(torch.bfloat16)
     # 初始化很慢，可以初始化一次，保存下来，之后用from_pretrained加载
     # model.save_pretrained('/sharedata/mdy/models/nsa-3B')
-    # model = AutoModelForCausalLM.from_pretrained('/sharedata/mdy/models/nsa-3B', torch_dtype=torch.bfloat16, device_map='cuda')
+    # model = AutoModelForCausalLM.from_pretrained('/sharedata/mdy/models/nsa-7B', torch_dtype=torch.bfloat16, device_map='cuda')
     print_rank0(model)
     time.sleep(5)
 
@@ -87,7 +88,7 @@ if __name__ == '__main__':
     print_rank0('====================start trainging=======================')
     train_args = TrainingArguments(
                             output_dir=args.output_dir,
-                            logging_dir=args.output_dir,
+                            logging_dir=args.log_dir,
                             logging_strategy='steps',
                             logging_steps=1,
                             report_to='tensorboard',
@@ -99,18 +100,18 @@ if __name__ == '__main__':
                             # evaluation_strategy='steps',
                             # eval_steps=100,
 
-                            save_strategy='no',
-                            # save_steps=1000,
-                            # save_total_limit=10,
-                            # save_only_model=True,
-                            # save_safetensors=False,
+                            save_strategy='steps',
+                            save_steps=1000,
+                            save_total_limit=10,
+                            save_only_model=False,
+                            save_safetensors=True,
                             # num_train_epochs=2,
 
                             dataloader_num_workers=16,
                             dataloader_prefetch_factor=2,
 
                             max_steps=args.max_steps,
-                            warmup_steps=500,
+                            warmup_steps=1000,
                             learning_rate=5e-4,             
                             lr_scheduler_type='cosine',
                             weight_decay=0.01,
