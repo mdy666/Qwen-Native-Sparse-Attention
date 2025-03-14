@@ -37,6 +37,10 @@ bash train.sh --deepspeed --nsa --fp8 --fp8-pattern proj
   
   ![Training Loss](./log/imgs/loss-0.3B.png)
 
+- **7B**
+  
+  ![Training Loss](./log/imgs/loss-7B.png)
+
 
 ## NSA 前向传播 (NSA Forward)
 
