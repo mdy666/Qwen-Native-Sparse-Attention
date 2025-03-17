@@ -1,0 +1,110 @@
+{
+  "os": "Linux-5.15.0-124-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.12.8",
+  "startedAt": "2025-03-16T10:38:20.450381Z",
+  "args": [
+    "--fp8",
+    "--fp8-pattern",
+    "proj",
+    "--model-config",
+    "./qwen2/config1.5B.json",
+    "--tokenizer",
+    "/sharedata/mdy/models/SauerkrautLM-Mixtral-8x7B-Instruct",
+    "--data-path",
+    "/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_en_text_document",
+    "/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_zh_text_document",
+    "--micro_batch_size",
+    "8",
+    "--global_batch_size",
+    "256",
+    "--output_dir",
+    "/sharedata/mdy/models/20000-base",
+    "--log_dir",
+    "./log/1.5B-20000/base-fp8",
+    "--max_seq_len",
+    "4096",
+    "--max_steps",
+    "20000",
+    "--exp_name",
+    "BASE-FP8"
+  ],
+  "program": "/sharedata/mdy/code/repo/qwen-nsa/train.py",
+  "codePath": "train.py",
+  "git": {
+    "remote": "https://github.com/mdy666/qwen-nsa.git",
+    "commit": "1498e44b2eb804c3ebb7dab0ee2b176ee2544267"
+  },
+  "email": "maduyue1031@gmail.com",
+  "root": "/sharedata/mdy/code/repo/qwen-nsa",
+  "host": "mdy-h200",
+  "executable": "/sharedata/mdy/miniforge/bin/python",
+  "codePathLocal": "train.py",
+  "cpu_count": 90,
+  "cpu_count_logical": 180,
+  "gpu": "NVIDIA H20Z",
+  "gpu_count": 8,
+  "disk": {
+    "/": {
+      "total": "422614683648",
+      "used": "52143960064"
+    }
+  },
+  "memory": {
+    "total": "3105187942400"
+  },
+  "cpu": {
+    "count": 90,
+    "countLogical": 180
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    },
+    {
+      "name": "NVIDIA H20Z",
+      "memoryTotal": "150754820096",
+      "cudaCores": 16896,
+      "architecture": "Hopper"
+    }
+  ],
+  "cudaVersion": "12.4"
+}

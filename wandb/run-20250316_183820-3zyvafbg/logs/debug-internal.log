@@ -1,0 +1,15 @@
+{"time":"2025-03-16T18:38:20.452565325+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/sharedata/mdy/code/repo/qwen-nsa/wandb/run-20250316_183820-3zyvafbg/logs/debug-core.log"}
+{"time":"2025-03-16T18:38:20.65857279+08:00","level":"INFO","msg":"created new stream","id":"3zyvafbg"}
+{"time":"2025-03-16T18:38:20.658616506+08:00","level":"INFO","msg":"stream: started","id":"3zyvafbg"}
+{"time":"2025-03-16T18:38:20.658673875+08:00","level":"INFO","msg":"sender: started","stream_id":"3zyvafbg"}
+{"time":"2025-03-16T18:38:20.658687993+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"3zyvafbg"}
+{"time":"2025-03-16T18:38:20.658734565+08:00","level":"INFO","msg":"handler: started","stream_id":"3zyvafbg"}
+{"time":"2025-03-16T18:38:21.899144031+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-03-17T11:01:29.648512598+08:00","level":"INFO","msg":"stream: closing","id":"3zyvafbg"}
+{"time":"2025-03-17T11:01:29.648614451+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-03-17T11:01:29.650487357+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-03-17T11:01:32.118953242+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-03-17T11:01:32.642655801+08:00","level":"INFO","msg":"handler: closed","stream_id":"3zyvafbg"}
+{"time":"2025-03-17T11:01:32.642707294+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"3zyvafbg"}
+{"time":"2025-03-17T11:01:32.642720949+08:00","level":"INFO","msg":"sender: closed","stream_id":"3zyvafbg"}
+{"time":"2025-03-17T11:01:32.642760559+08:00","level":"INFO","msg":"stream: closed","id":"3zyvafbg"}

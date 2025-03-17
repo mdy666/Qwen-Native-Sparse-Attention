@@ -1,0 +1,19 @@
+{"time":"2025-03-16T00:32:07.92239666+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/sharedata/mdy/code/repo/qwen-nsa/wandb/run-20250316_003207-1r2gpjwj/logs/debug-core.log"}
+{"time":"2025-03-16T00:32:08.133663726+08:00","level":"INFO","msg":"created new stream","id":"1r2gpjwj"}
+{"time":"2025-03-16T00:32:08.133787229+08:00","level":"INFO","msg":"stream: started","id":"1r2gpjwj"}
+{"time":"2025-03-16T00:32:08.133837818+08:00","level":"INFO","msg":"handler: started","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T00:32:08.133851446+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T00:32:08.133864078+08:00","level":"INFO","msg":"sender: started","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T00:32:08.789830918+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-03-16T01:42:35.522363432+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/maduyue/huggingface/1r2gpjwj/file_stream\": dial tcp 35.186.228.49:443: connect: connection timed out"}
+{"time":"2025-03-16T05:41:33.570366819+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/maduyue/huggingface/1r2gpjwj/file_stream\": dial tcp 35.186.228.49:443: connect: connection timed out"}
+{"time":"2025-03-16T09:14:18.750398469+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/maduyue/huggingface/1r2gpjwj/file_stream\": dial tcp 35.186.228.49:443: connect: connection timed out"}
+{"time":"2025-03-16T09:41:33.05433706+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/maduyue/huggingface/1r2gpjwj/file_stream\": dial tcp 35.186.228.49:443: connect: connection timed out"}
+{"time":"2025-03-16T18:36:34.981489634+08:00","level":"INFO","msg":"stream: closing","id":"1r2gpjwj"}
+{"time":"2025-03-16T18:36:34.981591674+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-03-16T18:36:34.982899668+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-03-16T18:36:37.3394332+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-03-16T18:36:37.897287695+08:00","level":"INFO","msg":"handler: closed","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T18:36:37.897339745+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T18:36:37.897352318+08:00","level":"INFO","msg":"sender: closed","stream_id":"1r2gpjwj"}
+{"time":"2025-03-16T18:36:37.897391693+08:00","level":"INFO","msg":"stream: closed","id":"1r2gpjwj"}

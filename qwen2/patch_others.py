@@ -174,10 +174,6 @@ def causal_forward(
     )
 
 
-
-
-
-
 module.apply_rotary_pos_emb = fused_apply_rope
 module.Qwen2RMSNorm.forward = rmsnorm_forward
 module.Qwen2MLP.forward = mlp_forward

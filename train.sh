@@ -1,13 +1,16 @@
 set -f
-DATA_PATH="/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_en_text_document"
+DATA_PATH="/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_en_text_document
+/sharedata/mdy/data/pretrain/mixtral/fineweb_edu_zh_text_document"
+
 TOKENIZER="/sharedata/mdy/models/SauerkrautLM-Mixtral-8x7B-Instruct"
-MODEl_CONFIG="./qwen2/config7B.json"
-MICRO_BATCH_SIZE=2
+MODEl_CONFIG="./qwen2/config1.5B.json"
+MICRO_BATCH_SIZE=8
 GLOBAL_BATCH_SIZE=256
-OUTPUT_DIR="/sharedata/mdy/models/base-7b-ckpt"
-TENSORBOARD="./log/7B/base-fp8"
+OUTPUT_DIR="/sharedata/mdy/models/20000-base"
+TENSORBOARD="./log/1.5B-20000/base-fp8"
 MAX_SEQ_LEN=4096
-MAX_STEPS=5000
+MAX_STEPS=20000
+EXP_NAME='BASE-FP8'
 
 N_GPUS=8
 torchrun --nproc_per_node=$N_GPUS train.py $@ \
@@ -19,7 +22,8 @@ torchrun --nproc_per_node=$N_GPUS train.py $@ \
     --output_dir $OUTPUT_DIR \
     --log_dir $TENSORBOARD \
     --max_seq_len $MAX_SEQ_LEN \
-    --max_steps $MAX_STEPS
+    --max_steps $MAX_STEPS \
+    --exp_name $EXP_NAME
 
 CMD = '''
 # base-bf16

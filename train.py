@@ -25,13 +25,15 @@ def get_args():
     parser.add_argument('--fp8', action='store_true')
     parser.add_argument('--fp8-pattern', nargs='+')
     parser.add_argument('--deepspeed', action='store_true')
+    parser.add_argument('--dyt', action='store_true')
 
     parser.add_argument('--model-config',type=str, default='./qwen2/config1.5B.json')
     parser.add_argument('--tokenizer',type=str, default='')
     parser.add_argument('--data-path', nargs='+')
 
     parser.add_argument('--output_dir', type=str)
-    parser.add_argument('--log_dir', type=str)
+    parser.add_argument('--exp_name', default=None)
+    parser.add_argument('--log_dir', default=None)
     parser.add_argument('--micro_batch_size', type=int, default=4)
     parser.add_argument('--global_batch_size', type=int, default=256)
     parser.add_argument('--max_seq_len', type=int, default=1024)
@@ -60,14 +62,18 @@ if __name__ == '__main__':
     print_rank0(args)
     assert args.global_batch_size % (args.micro_batch_size * world_size) == 0
     acc_grad_steps = args.global_batch_size // (args.micro_batch_size * world_size)
+    num_samples = args.global_batch_size * args.max_steps
 
     # 加入NSA配置
     if args.nsa:
         from qwen2.patch_nsa import trigger
+    if args.dyt:
+        from qwen2.patch_dyt import trigger
+
 
     print_rank0('====================loading datasets=======================') 
     # 用的Magatron中的GPTDataset，可以换成别的。注意：label已经是shift之后的了
-    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len, seed=42, num_samples=args.max_steps * args.global_batch_size)
+    ds = build_dataset(args.data_path, args.tokenizer, args.max_seq_len, seed=seed, num_samples=num_samples)
     
     print_rank0('====================loading model=======================')
     config = AutoConfig.from_pretrained(args.model_config)
@@ -91,8 +97,8 @@ if __name__ == '__main__':
                             logging_dir=args.log_dir,
                             logging_strategy='steps',
                             logging_steps=1,
-                            report_to='tensorboard',
-
+                            report_to='wandb',
+                            run_name=args.exp_name,
                             per_device_train_batch_size=args.micro_batch_size,
                             # per_device_eval_batch_size=args.batch_size_per_device * 2,
                             gradient_accumulation_steps=acc_grad_steps,
@@ -101,8 +107,8 @@ if __name__ == '__main__':
                             # eval_steps=100,
 
                             save_strategy='steps',
-                            save_steps=1000,
-                            save_total_limit=10,
+                            save_steps=2000,
+                            save_total_limit=5,
                             save_only_model=False,
                             save_safetensors=True,
                             # num_train_epochs=2,
