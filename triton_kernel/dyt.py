@@ -164,7 +164,7 @@ def torch_dyt_without_beta(x, alpha, gemma):
     return gemma * torch.tanh(x * alpha)
 
 class DYT(torch.nn.Module):
-    def __init__(self, dim, beta=False, init_a=0.5):
+    def __init__(self, dim, beta=False, init_a=0.5, **kwargs):
         super().__init__()
         self.alpha = torch.nn.Parameter(torch.ones(1) * init_a)
         self.gemma = torch.nn.Parameter(torch.ones(dim))
