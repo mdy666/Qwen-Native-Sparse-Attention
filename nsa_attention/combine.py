@@ -37,6 +37,43 @@ def _fused_sigmoid_combine_fwd_kernel(P,
 #                  for ns in [1, 2, 4]
 #                  for nw in [1,2,4, 8, 16]
 #                  ], key=['N', "D"])
+# @triton.jit
+# def _fused_sigmoid_combine_bwd_kernel(DP,
+#                                       DW,
+#                                       DO,
+#                                       P,
+#                                       W,
+#                                       N:tl.constexpr,
+#                                       D:tl.constexpr,
+#                                       BLOCK_N:tl.constexpr=32,
+#                                       CHUNK_N:tl.constexpr=1024
+#                                       ):
+#     start_n = tl.cast(tl.program_id(0), tl.int64) * CHUNK_N + tl.program_id(1) * BLOCK_N
+#     if start_n >= N:
+#         return
+#     off_n = start_n + tl.arange(0, BLOCK_N)
+#     mask = off_n < N
+
+#     offset = off_n[:, None] * D + tl.arange(0, D)[None, :]
+#     dcombine_o = tl.load(DO + offset, mask=mask[:, None], other=0.).to(tl.float32)
+#     for i in range(3):
+#         p = tl.load(P+i).to(tl.pointer_type(DO.dtype.element_ty))
+#         dp = tl.load(DP+i).to(tl.pointer_type(DO.dtype.element_ty))
+#         o = tl.load(p + offset, mask=mask[:, None], other=0.).to(tl.float32)
+#         w = tl.load(W + off_n * 3 + i, mask=mask, other=0.).to(tl.float32)
+#         sigmoid_w = tl.sigmoid(w)
+#         do = dcombine_o * sigmoid_w[:, None]
+#         dsigmoid_w = tl.sum(dcombine_o * o, -1)
+#         dw = sigmoid_w * (1 - sigmoid_w) * dsigmoid_w
+#         tl.store(dp + offset, do, mask=mask[:, None])
+#         tl.store(DW + off_n * 3 + i, dw, mask=mask)
+
+
+# @triton.autotune([triton.Config({'BLOCK_N': bsn}, num_stages=ns, num_warps=nw)
+#                  for bsn in [2, 4, 8]
+#                  for ns in [1, 2, 4]
+#                  for nw in [1, 2,4, 8]
+#                  ], key=['N', "D"])
 @triton.jit
 def _fused_sigmoid_combine_bwd_kernel(DP,
                                       DW,
@@ -56,17 +93,18 @@ def _fused_sigmoid_combine_bwd_kernel(DP,
 
     offset = off_n[:, None] * D + tl.arange(0, D)[None, :]
     dcombine_o = tl.load(DO + offset, mask=mask[:, None], other=0.).to(tl.float32)
-    for i in range(3):
-        p = tl.load(P+i).to(tl.pointer_type(DO.dtype.element_ty))
-        dp = tl.load(DP+i).to(tl.pointer_type(DO.dtype.element_ty))
-        o = tl.load(p + offset, mask=mask[:, None], other=0.).to(tl.float32)
-        w = tl.load(W + off_n * 3 + i, mask=mask, other=0.).to(tl.float32)
-        sigmoid_w = tl.sigmoid(w)
-        do = dcombine_o * sigmoid_w[:, None]
-        dsigmoid_w = tl.sum(dcombine_o * o, -1)
-        dw = sigmoid_w * (1 - sigmoid_w) * dsigmoid_w
-        tl.store(dp + offset, do, mask=mask[:, None])
-        tl.store(DW + off_n * 3 + i, dw, mask=mask)
+
+    i = tl.program_id(2)
+    p = tl.load(P+i).to(tl.pointer_type(DO.dtype.element_ty))
+    dp = tl.load(DP+i).to(tl.pointer_type(DO.dtype.element_ty))
+    o = tl.load(p + offset, mask=mask[:, None], other=0.).to(tl.float32)
+    w = tl.load(W + off_n * 3 + i, mask=mask, other=0.).to(tl.float32)
+    sigmoid_w = tl.sigmoid(w)
+    do = dcombine_o * sigmoid_w[:, None]
+    dsigmoid_w = tl.sum(dcombine_o * o, -1)
+    dw = sigmoid_w * (1 - sigmoid_w) * dsigmoid_w
+    tl.store(dp + offset, do, mask=mask[:, None])
+    tl.store(DW + off_n * 3 + i, dw, mask=mask)
 
     
 
@@ -105,8 +143,8 @@ class _FusedSigmoidCombine(torch.autograd.Function):
         dc = torch.empty_like(c)
         dw = torch.empty_like(w)
         dp = torch.tensor([da.data_ptr(), db.data_ptr(), dc.data_ptr()], dtype=torch.int64, device=a.device)
-        kwargs = {'BLOCK_N':8, "num_warps":4, "num_stages":4}
-        grid = lambda meta: (triton.cdiv(ctx.N, meta['CHUNK_N']), triton.cdiv(meta['CHUNK_N'], meta['BLOCK_N']))
+        kwargs = {'BLOCK_N':4, "num_warps":1, "num_stages":4}
+        grid = lambda meta: (triton.cdiv(ctx.N, meta['CHUNK_N']), triton.cdiv(meta['CHUNK_N'], meta['BLOCK_N']), 3)
         _fused_sigmoid_combine_bwd_kernel[grid](dp, 
                                                 dw,
                                                 do,
