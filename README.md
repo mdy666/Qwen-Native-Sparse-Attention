@@ -1,7 +1,33 @@
 # 介绍
 
-- 将 **NSA (Native Sparse Attention)** 应用于 **Qwen2.5** 中
+- 将 **NSA (Native Sparse Attention)** 应用于 **Qwen2.5** 中。真实训练和测速，欢迎大家提建议
 - 论文链接：[NSA Paper](https://arxiv.org/pdf/2502.11089)
+- NSA接口快速使用
+```python
+import torch
+from nsa_attention.nsa_attn import NsaAttention
+
+device = 'cuda'
+dtype = torch.bfloat16
+b, n, qh, kh, qk_head_dim, v_head_dim = 1, 1024 * 64, 64, 4, 128, 128
+kernel_size = 32
+stride = 16
+select_size = 64
+window_size = 512
+top_n = 16
+
+q = torch.randn(b, n, qh, qk_head_dim, device=device, dtype=dtype)
+k = torch.randn(b, n, kh, qk_head_dim, device=device, dtype=dtype)
+v = torch.randn(b, n, kh, v_head_dim, device=device, dtype=dtype)
+q.requires_grad_(True)
+k.requires_grad_(True)
+v.requires_grad_(True)
+
+nsa = NsaAttention(qk_head_dim, v_head_dim, kernel_size, stride, select_size, top_n, window_size).to(device).to(dtype)
+y = nsa(q, k, v)
+dy = torch.randn_like(y)
+y.backward(dy)
+```
 
 ---
 
@@ -50,11 +76,11 @@ bash train.sh --deepspeed --nsa --fp8 --fp8-pattern proj
 ```bash
 forward:
          n        NSA  Triton-FA2         FA2         FA3
-0   4096.0   1.602237    1.236272    0.853304    0.450707
-1   8192.0   3.375614    4.617662    3.126114    1.688997
-2  16384.0   7.682472   18.019020   12.210832    6.832916
-3  32768.0  19.287233   72.899101   47.723709   26.812576
-4  65536.0  54.561855  294.104034  191.124039  107.878654
+0   4096.0   1.709360    1.150744    0.835265    0.411296
+1   8192.0   3.311765    4.221737    3.055912    1.616297
+2  16384.0   7.280990   16.473396   11.883659    6.544441
+3  32768.0  18.277786   67.683357   46.451984   26.166731
+4  65536.0  51.926529  272.943909  185.468445  103.667168
 ```
 
 ## NSA 反向传播 (NSA Backward)
@@ -63,11 +89,11 @@ forward:
 ```bash
 backward:
          n         NSA  Triton-FA2         FA2         FA3
-0   4096.0    4.228095    3.801379    2.489879    1.398639
-1   8192.0    8.856822   14.751919    8.950336    5.043114
-2  16384.0   19.674505   57.684864   33.809361   18.971676
-3  32768.0   46.937714  230.240005  136.197784   75.045441
-4  65536.0  123.969917  917.277344  538.653931  294.037750
+0   4096.0    4.103184    3.923189    2.459532    1.370661
+1   8192.0    8.592928   14.868421    8.864939    4.856082
+2  16384.0   19.052410   58.531010   33.624817   18.598303
+3  32768.0   45.934288  235.147644  132.935776   73.087234
+4  65536.0  121.322205  942.912842  525.255737  291.490326
 ```
 
 ---
