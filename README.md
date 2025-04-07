@@ -3,31 +3,31 @@
 - 将 **NSA (Native Sparse Attention)** 应用于 **Qwen2.5** 中。真实训练和测速，欢迎大家提建议
 - 论文链接：[NSA Paper](https://arxiv.org/pdf/2502.11089)
 - NSA接口快速使用
-```python
-import torch
-from nsa_attention.nsa_attn import NsaAttention
+  ```python
+  import torch
+  from nsa_attention.nsa_attn import NsaAttention
 
-device = 'cuda'
-dtype = torch.bfloat16
-b, n, qh, kh, qk_head_dim, v_head_dim = 1, 1024 * 64, 64, 4, 128, 128
-kernel_size = 32
-stride = 16
-select_size = 64
-window_size = 512
-top_n = 16
+  device = 'cuda'
+  dtype = torch.bfloat16
+  b, n, qh, kh, qk_head_dim, v_head_dim = 1, 1024 * 64, 64, 4, 128, 128
+  kernel_size = 32
+  stride = 16
+  select_size = 64
+  window_size = 512
+  top_n = 16
 
-q = torch.randn(b, n, qh, qk_head_dim, device=device, dtype=dtype)
-k = torch.randn(b, n, kh, qk_head_dim, device=device, dtype=dtype)
-v = torch.randn(b, n, kh, v_head_dim, device=device, dtype=dtype)
-q.requires_grad_(True)
-k.requires_grad_(True)
-v.requires_grad_(True)
+  q = torch.randn(b, n, qh, qk_head_dim, device=device, dtype=dtype)
+  k = torch.randn(b, n, kh, qk_head_dim, device=device, dtype=dtype)
+  v = torch.randn(b, n, kh, v_head_dim, device=device, dtype=dtype)
+  q.requires_grad_(True)
+  k.requires_grad_(True)
+  v.requires_grad_(True)
 
-nsa = NsaAttention(qk_head_dim, v_head_dim, kernel_size, stride, select_size, top_n, window_size).to(device).to(dtype)
-y = nsa(q, k, v)
-dy = torch.randn_like(y)
-y.backward(dy)
-```
+  nsa = NsaAttention(qk_head_dim, v_head_dim, kernel_size, stride, select_size, top_n, window_size).to(device).to(dtype)
+  y = nsa(q, k, v)
+  dy = torch.randn_like(y)
+  y.backward(dy)
+  ```
 
 ---
 
