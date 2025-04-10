@@ -575,7 +575,7 @@ class _attention(torch.autograd.Function):
         lse = torch.empty(B, N,QH, dtype=torch.float32, device=q.device,)
 
         nrep = QH // KH
-        BLOCK_SIZE_H = triton.next_power_of_2(nrep)
+        BLOCK_SIZE_H = max(triton.next_power_of_2(nrep), 16)
         BLOCK_SIZE_M = select_size
         top_n = fwd_ind.size(-1)
         if D == 192:
