@@ -37,6 +37,7 @@ y.backward(dy)
 ## Forward Benchmark
 
 - **说明**：NSA 是端到端的时间，输入 `qkv`，输出 `combine-o`，包括 `compress_attn`、`select_attn`、`window_attn` 和 `combine`。
+- 跑benchmark的软硬件：GPU-H200，cuda-12.8，torch2.6-cuda12.6，triton-3.2
 - 64k长度下，forward是triton-fa2速度的5倍+，论文中是9倍。
   
   ![NSA Forward](./log/imgs/nsa_fwd.png)
