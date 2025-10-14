@@ -3,7 +3,7 @@
 - 将 **NSA (Native Sparse Attention)** 应用于 **Qwen2.5** 中。
 - 论文链接：[NSA Paper](https://arxiv.org/pdf/2502.11089)
 - 真实训练和测速，如果有可以继续优化的地方，欢迎大家提建议。
-- 该repo不支持varlen，如果你是hopper gpu的话，请看最新的repo，性能更强功能更全，支持carlen，cp，infer等功能。地址：[Scalable-Flash-Native-Sparse-Attention](https://github.com/mdy666/Scalable-Flash-Native-Sparse-Attention.git)
+- 该repo不支持varlen，如果你是hopper gpu的话，请看最新的repo，性能更强功能更全，支持varlen，context parallel，inference等功能。地址：[Scalable-Flash-Native-Sparse-Attention](https://github.com/mdy666/Scalable-Flash-Native-Sparse-Attention.git)
 
 # NSA
 
